@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint 1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #1e1e2f;
+      color: #ffffff;
+    }
+    .panel {
+      text-align: center;
+      background-color: #29293d;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 300px;
+    }
+    .panel h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .panel p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .panel button {
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .panel button:hover {
+      background-color: #3b78c4;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Checkpoint 1</h1>
+    <p>Complete this checkpoint to proceed to the next one.</p>
+    <button onclick="goToNextCheckpoint()">Continue to Checkpoint 2</button>
+  </div>
+
+  <script>
+    const SHRINKEARN_API_KEY = "fb00a6a6a5bbbfde4e8a7944337ef931afd8c20c";
+
+    async function goToNextCheckpoint() {
+      const nextCheckpointUrl = "https://cer3.lol/checkpoint2/";
+
+      try {
+        const response = await fetch(`https://shrinkearn.com/api?api=${SHRINKEARN_API_KEY}&url=${encodeURIComponent(nextCheckpointUrl)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+          window.open(data.shortenedUrl, "_blank");
+        } else {
+          console.error("Failed to create ShrinkEarn link:", data.message);
+          alert("Error generating link, please try again.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error generating link, please try again.");
+      }
+    }
+  </script>
+</body>
+</html>
