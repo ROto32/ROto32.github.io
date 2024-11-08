@@ -46,7 +46,7 @@
   </style>
 </head>
 <body>
-  <div>
+  <div class="panel">
     <h1>Checkpoint 2</h1>
     <p>Almost there! Complete this checkpoint to proceed to the final checkpoint.</p>
     <button onclick="goToNextCheckpoint()">Continue to Checkpoint 3</button>
@@ -56,6 +56,7 @@
     const SHRINKEARN_API_KEY = "fb00a6a6a5bbbfde4e8a7944337ef931afd8c20c";
 
     async function goToNextCheckpoint() {
+      localStorage.setItem("checkpoint2Completed", "true");
       const nextCheckpointUrl = "https://cer3.lol/checkpoint3/";
 
       try {
@@ -65,11 +66,9 @@
         if (data.status === "success") {
           window.open(data.shortenedUrl, "_blank");
         } else {
-          console.error("Failed to create ShrinkEarn link:", data.message);
           alert("Error generating link, please try again.");
         }
       } catch (error) {
-        console.error("Error:", error);
         alert("Error generating link, please try again.");
       }
     }
