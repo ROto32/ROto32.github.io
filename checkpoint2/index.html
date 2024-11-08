@@ -53,24 +53,10 @@
   </div>
 
   <script>
-    const SHRINKEARN_API_KEY = "fb00a6a6a5bbbfde4e8a7944337ef931afd8c20c";
-
-    async function goToNextCheckpoint() {
+    function goToNextCheckpoint() {
       localStorage.setItem("checkpoint2Completed", "true");
-      const nextCheckpointUrl = "https://cer3.lol/checkpoint3/";
-
-      try {
-        const response = await fetch(`https://shrinkearn.com/api?api=${SHRINKEARN_API_KEY}&url=${encodeURIComponent(nextCheckpointUrl)}`);
-        const data = await response.json();
-
-        if (data.status === "success") {
-          window.open(data.shortenedUrl, "_blank");
-        } else {
-          alert("Error generating link, please try again.");
-        }
-      } catch (error) {
-        alert("Error generating link, please try again.");
-      }
+      const nextCheckpointUrl = "https://direct-link.net/1248728/cer3-checkpoint-3";
+      window.open(nextCheckpointUrl, "_blank");
     }
   </script>
 </body>
