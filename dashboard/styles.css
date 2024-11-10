@@ -25,6 +25,7 @@ body {
   background-size: 300% 300%;
   color: #f0f0f0;
   animation: backgroundMove 15s ease infinite;
+  overflow-y: auto;
 }
 
 /* Glassmorphism Panel */
@@ -39,6 +40,7 @@ body {
   width: 100%;
   color: #e0e0e0;
   transform-style: preserve-3d;
+  overflow-y: auto;
 }
 
 /* Panel Heading with custom font */
@@ -277,31 +279,41 @@ button:active {
   padding: 10px 20px;
   font-weight: bold;
   color: #f0f0f0;
-  background-color: linear-gradient(120deg, #252535, #030711);
+  background-color: #4c4c80;
   border-radius: 5px;
   display: flex;
   align-items: center;
   transition: background-color 0.3s, transform 0.3s;
   text-align: center;
-  background: linear-gradient(120deg, #252535, #030711);
+  background: #4c4c80;
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   color: #e0e0e0;
   transform-style: preserve-3d;
   animation: backgroundMove 15s ease infinite;
+  margin-top: 250px;
+  box-shadow: 0 5px 15px rgba(#4c4c80);
 }
 
 .tab img {
   width: 20px;
   height: 20px;
-  margin-right: 8px;
+  margin-right: 20px;
   transition: transform 0.3s ease;
+  text-align: center;
+  background: rgba(#101725);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
+  transform-style: preserve-3d;
 }
 
 .tab:hover {
   background-color: #444444;
   transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(#444444);
 }
 
 .tab:hover img {
@@ -311,6 +323,13 @@ button:active {
 /* Tab Content */
 .tab-content {
   display: none;
+  text-align: center;
+  background: rgba(#101725);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
+  transform-style: preserve-3d;
 }
 
 .tab-content.active {
@@ -318,6 +337,24 @@ button:active {
   opacity: 1;
   position: relative;
   animation: fadeSlideDown 0.5s forwards;
+  margin-right: 20px;
+  text-align: center;
+  background: rgba(#101725);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
+  transform-style: preserve-3d;
+}
+
+.duration1{
+  text-align: center;
+  background: rgba(#101725);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
+  transform-style: preserve-3d;
 }
 
 /* Tab Content Animation */
