@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint 2</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="https://cer3.lol/logo.png">
+</head>
+<body>
+  <div class="panel">
+    <h1>CER3</h1>
+    <p>Checkpoint 2 of 3</p>
+    <p>Almost there! Complete this checkpoint to proceed to the final checkpoint.</p>
+    <button onclick="goToNextCheckpoint()">Continue to Checkpoint 3</button>
+  </div>
+
+  <script>
+    function goToNextCheckpoint() {
+      localStorage.setItem("checkpoint2Completed", "true");
+      const nextCheckpointUrl = "https://direct-link.net/1248728/cer3-checkpoint-3";
+      window.open(nextCheckpointUrl, "_blank");
+    }
+  </script>
+</body>
+</html>

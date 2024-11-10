@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint 1</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="https://cer3.lol/logo.png">
+</head>
+<body>
+  <div class="panel">
+    <h1>CER3</h1>
+    <p>Checkpoint 1 of 3</p>
+    <p>Click continue; pop-ups/ads may show and they can be annoying, but they directly support the creators of this link.</p>
+    <button onclick="goToNextCheckpoint()">Continue to Checkpoint 2</button>
+  </div>
+
+  <script>
+    function goToNextCheckpoint() {
+      localStorage.setItem("checkpoint1Completed", "true");
+      const nextCheckpointUrl = "https://direct-link.net/1248728/cer3-checkpoint-2";
+      window.open(nextCheckpointUrl, "_blank");
+    }
+  </script>
+</body>
+</html>
