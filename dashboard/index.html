@@ -204,21 +204,31 @@ end
     }
 
     async function loadKeys() {
-      const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": JSONBIN_API_KEY } });
-      const keys = (await response.json()).record.keys || [];
-      const keysPerPage = parseInt(document.getElementById("keysPerPage").value) || 5;
-      const startIndex = (currentPage - 1) * keysPerPage;
-      const endIndex = Math.min(startIndex + keysPerPage, keys.length);
+      const keysContainer = document.getElementById("userGeneratedKeys");
+      if (!keysContainer) {
+        console.error("Error: Keys container not found.");
+        return;
+      }
+      
+      try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": JSONBIN_API_KEY } });
+        const keys = (await response.json()).record.keys || [];
+        const keysPerPage = parseInt(document.getElementById("keysPerPage").value) || 5;
+        const startIndex = (currentPage - 1) * keysPerPage;
+        const endIndex = Math.min(startIndex + keysPerPage, keys.length);
 
-      document.getElementById("userGeneratedKeys").innerHTML = `
-        ${keys.slice(startIndex, endIndex).map(keyData => `
-          <div class="key-card">
-            <h3>${keyData.key}</h3>
-            <p>Expires: ${new Date(keyData.expiresAt).toLocaleString()}</p>
-            <p>Locked to User ID: ${keyData.userId || "Not Locked"}</p>
-          </div>
-        `).join('')}
-      `;
+        keysContainer.innerHTML = `
+          ${keys.slice(startIndex, endIndex).map(keyData => `
+            <div class="key-card">
+              <h3>${keyData.key}</h3>
+              <p>Expires: ${new Date(keyData.expiresAt).toLocaleString()}</p>
+              <p>Locked to User ID: ${keyData.userId || "Not Locked"}</p>
+            </div>
+          `).join('')}
+        `;
+      } catch (error) {
+        console.error("Failed to load keys:", error);
+      }
     }
 
     function nextPage() { currentPage++; loadKeys(); }
