@@ -20,17 +20,18 @@
   </div>
 
   <script>
-    const JSONBIN_API_KEY = "$2a$10$HLDDYPvtGTQwJZ9Q.LayduoB07ppCTRo7uNFxhudGJxWHhWSSp5Ze"; 
-    const USERS_BIN_ID = "6733b0fde41b4d34e453576d"; 
-    const BIN_ID = "6733b091acd3cb34a8a79082";
+    const MOCKAPI_URL = "https://673ce3d54db5a341d8334ff8.mockapi.io/keys";
 
     function isEligibleForKey() {
       const lastGenerated = localStorage.getItem("lastGeneratedTime");
-      const twelveHours = 12 * 60 * 60 * 1000;
+      const twelveHours = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
-      return lastGenerated && Date.now() - lastGenerated < twelveHours
-        ? alert("You can only generate a key every 12 hours.")
-        : true;
+      if (lastGenerated && Date.now() - lastGenerated < twelveHours) {
+        alert("You can only generate a key every 12 hours.");
+        return false;
+      }
+
+      return true;
     }
 
     async function generateKey() {
@@ -42,35 +43,38 @@
       if (!isEligibleForKey()) return;
 
       const expirationDate = new Date();
-      expirationDate.setHours(expirationDate.getHours() + 12);
+      expirationDate.setHours(expirationDate.getHours() + 12); // Set expiration 12 hours from now
+
       const newKey = {
         key: `KEY-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-        expiresAt: expirationDate.toISOString()
+        expiresAt: expirationDate.toISOString(),
+        userId: "" // Leave userId empty or assign it if needed
       };
 
       try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { "X-Master-Key": JSONBIN_API_KEY }
-        });
-        const data = await response.json();
-        const storedKeys = data.record.keys || [];
-
-        storedKeys.push(newKey);
-
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: "PUT",
+        // POST the new key to MockAPI
+        const response = await fetch(MOCKAPI_URL, {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Master-Key": JSONBIN_API_KEY,
-            "X-Bin-Versioning": "false"
           },
-          body: JSON.stringify({ keys: storedKeys })
+          body: JSON.stringify(newKey),
         });
 
+        if (!response.ok) {
+          throw new Error(`Failed to generate key: ${response.statusText}`);
+        }
+
+        // Store the last generation time locally
         localStorage.setItem("lastGeneratedTime", Date.now());
+
+        // Display the generated key
         document.getElementById("keyResult").style.display = "block";
         document.getElementById("generatedKey").innerText = newKey.key;
+
+        alert("Your key has been successfully generated!");
       } catch (error) {
+        console.error("Error generating key:", error);
         alert("Error generating key, please try again.");
       }
     }
