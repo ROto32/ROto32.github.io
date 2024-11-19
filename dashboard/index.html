@@ -29,12 +29,6 @@
       <div class="tab" onclick="openTab('users')">
         <img src="icons/user.png" alt="Users Icon"> Users
       </div>
-      <div class="tab" onclick="openTab('example')">
-        <img src="icons/paper.png" alt="Example Icon"> Example
-      </div>
-      <div class="tab" onclick="openTab('settings')">
-        <img src="icons/cog.png" alt="Settings Icon"> Settings
-      </div>
     </div>
 
     <div class="tab-content" id="keys" style="display: none;">
@@ -55,6 +49,7 @@
       </label>
       <button onclick="generateKeys()">Generate Keys</button>
       <button onclick="copyGeneratedKeys()">Copy All Keys</button>
+      <button onclick="deleteExpiredKeys()">Delete Expired Keys</button> <!-- New Button -->
       <div id="generatedKey" class="output"></div>
       <h3>Generated Keys</h3>
       <ul id="recentlyGeneratedKeys"></ul>
@@ -73,115 +68,171 @@
       <div id="userGeneratedKeys"></div>
     </div>
 
-    <div class="tab-content" id="example" style="display: none;">
-      <h2>Lua Example Code for Key Validation</h2>
-      <div class="code-block">
-        <pre><code class="language-lua">
--- Lua Example Code
-local JSONBIN_API_KEY = "$2a$10$nINI7pBO7a.W7H0knci4VehSa2YblgI/5pz/FMsoroByYUqKO./Ju"
-local BIN_ID = "672e5527e41b4d34e450f833"
-
-local function fetchKeys()
-    local url = "https://api.jsonbin.io/v3/b/" .. BIN_ID .. "/latest"
-    local headers = {
-        ["X-Master-Key"] = JSONBIN_API_KEY,
-        ["Content-Type"] = "application/json"
-    }
-
-    local success, response = pcall(function()
-        return request({
-            Url = url,
-            Method = "GET",
-            Headers = headers
-        })
-    end)
-
-    if not success or not response then return nil end
-    return game:GetService("HttpService"):JSONDecode(response.Body).record.keys
-end
-
-local function validateKey(userKey)
-    local keys = fetchKeys()
-    for _, keyData in ipairs(keys) do
-        if keyData.key == userKey and keyData.expiresAt > os.date("!%Y-%m-%dT%H:%M:%S") then
-            return true
-        end
-    end
-    return false
-end
-        </code></pre>
-      </div>
-    </div>
-
     <div class="tab-content" id="settings" style="display: none;">
       <h2>Settings</h2>
-
-      
       <button onclick="deleteExpiredKeys()">Delete Expired Keys</button>
       <button onclick="logout()">Logout</button>
     </div>
   </div>
 
   <script>
-    const JSONBIN_API_KEY = "$2a$10$HLDDYPvtGTQwJZ9Q.LayduoB07ppCTRo7uNFxhudGJxWHhWSSp5Ze"; 
-    const USERS_BIN_ID = "6733b0fde41b4d34e453576d"; 
-    const BIN_ID = "6733b091acd3cb34a8a79082";
+    const usersApiUrl = "https://673ce3d54db5a341d8334ff8.mockapi.io/users";
+    const keysApiUrl = "https://673ce3d54db5a341d8334ff8.mockapi.io/keys";
     let currentPage = 1;
 
     async function fetchUsers() {
-      const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
-        headers: { "X-Master-Key": JSONBIN_API_KEY }
-      });
-      return (await response.json()).record.users || [];
+      const response = await fetch(usersApiUrl);
+      if (!response.ok) throw new Error("Failed to fetch users");
+      return await response.json();
     }
+
+    async function fetchKeys() {
+      const response = await fetch(keysApiUrl);
+      if (!response.ok) throw new Error("Failed to fetch keys");
+      return await response.json();
+    }
+
+        async function updateKey(id, updatedKey) {
+      const response = await fetch(`https://673ce3d54db5a341d8334ff8.mockapi.io/keys/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedKey),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update key: ${errorText}`);
+      }
+
+      return await response.json();
+    }
+
 
     async function login() {
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
       const rememberMe = document.getElementById("rememberMe").checked;
 
-      const users = await fetchUsers();
-      const user = users.find(user => user.username === username && user.passwordHash === password);
+      try {
+        const users = await fetchUsers();
+        const user = users.find(
+          (u) => u.username === username && u.passwordHash === password
+        );
 
-      if (user) {
-        if (rememberMe) localStorage.setItem("loggedIn", "true");
-        document.getElementById("login-container").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        openTab('keys');
-      } else {
-        document.getElementById("loginStatus").innerText = "Invalid username or password.";
+        if (user) {
+          if (rememberMe) localStorage.setItem("loggedIn", "true");
+          document.getElementById("login-container").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          openTab("keys");
+        } else {
+          document.getElementById("loginStatus").innerText =
+            "Invalid username or password.";
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        document.getElementById("loginStatus").innerText =
+          "Error connecting to the server.";
       }
     }
 
-    async function deleteExpiredKeys() {
-    try {
-      // Fetch all keys from JSONBin
-      const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { "X-Master-Key": JSONBIN_API_KEY }
-      });
-      const keys = (await response.json()).record.keys || [];
-      
-      // Filter out expired keys
-      const currentTime = new Date().toISOString();
-      const activeKeys = keys.filter(key => key.expiresAt > currentTime);
-      
-      // Update JSONBin with active keys only
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": JSONBIN_API_KEY,
-          "X-Bin-Versioning": "false"
-        },
-        body: JSON.stringify({ keys: activeKeys })
-      });
-      
-      alert("Expired keys deleted successfully.");
-      loadKeys(); // Reload keys to reflect changes
-    } catch (error) {
-      console.error("Failed to delete expired keys:", error);
+    async function loadKeys() {
+      try {
+        const keys = await fetchKeys();
+        const keysPerPage =
+          parseInt(document.getElementById("keysPerPage").value) || 5;
+        const startIndex = (currentPage - 1) * keysPerPage;
+        const endIndex = Math.min(startIndex + keysPerPage, keys.length);
+
+        document.getElementById("userGeneratedKeys").innerHTML = keys
+          .slice(startIndex, endIndex)
+          .map(
+            (key) => `
+          <div>
+            <h3>${key.key}</h3>
+            <p>Expires: ${key.expiresAt}</p>
+            <p>Locked to User: ${key.userId || "Not Assigned"}</p>
+          </div>
+        `
+          )
+          .join("");
+      } catch (error) {
+        console.error("Failed to load keys:", error);
+      }
     }
+
+    async function generateKeys() {
+  const keyCount = parseInt(document.getElementById("keyCount").value) || 1;
+  const durationType = document.getElementById("durationType").value;
+  const durationValue = parseInt(document.getElementById("durationValue").value);
+
+  // Validate inputs
+  if (isNaN(durationValue) || durationValue <= 0) {
+    alert("Please enter a valid duration value.");
+    return;
   }
+
+  if (!["hours", "days", "months", "years"].includes(durationType)) {
+    alert("Please select a valid duration type.");
+    return;
+  }
+
+  const now = new Date();
+
+  // Adjust expiration date based on durationType
+  switch (durationType) {
+    case "hours":
+      now.setHours(now.getHours() + durationValue);
+      break;
+    case "days":
+      now.setDate(now.getDate() + durationValue);
+      break;
+    case "months":
+      now.setMonth(now.getMonth() + durationValue);
+      break;
+    case "years":
+      now.setFullYear(now.getFullYear() + durationValue);
+      break;
+  }
+
+  const generatedKeys = Array.from({ length: keyCount }, () => ({
+    key: "KEY-" + Math.random().toString(36).substr(2, 7).toUpperCase(),
+    expiresAt: now.toISOString(),
+    userId: "", // Use an empty string instead of null
+  }));
+
+  console.log("Generated keys:", generatedKeys); // Debug payload
+
+  try {
+    const postPromises = generatedKeys.map(async (newKey) => {
+      const response = await fetch("https://673ce3d54db5a341d8334ff8.mockapi.io/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newKey),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to add key: ${errorText}`);
+      }
+
+      return await response.json();
+    });
+
+    const addedKeys = await Promise.all(postPromises);
+
+    document.getElementById("recentlyGeneratedKeys").innerHTML = addedKeys
+      .map((key) => `<li>${key.key} (Expires: ${new Date(key.expiresAt).toLocaleString()})</li>`)
+      .join("");
+
+    alert(`${keyCount} keys generated successfully!`);
+    loadKeys();
+  } catch (error) {
+    console.error("Failed to generate keys:", error);
+    alert(`Failed to generate keys: ${error.message}`);
+  }
+}
+
+
 
     function logout() {
       localStorage.removeItem("loggedIn");
@@ -190,88 +241,73 @@ end
     }
 
     function openTab(tabName) {
-      const contents = document.getElementsByClassName("tab-content");
-      for (let content of contents) content.style.display = "none";
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((tab) => (tab.style.display = "none"));
       document.getElementById(tabName).style.display = "block";
     }
 
-    function generateRandomKey() {
-      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      return "KEY-" + Array.from({ length: 7 }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
-    }
-
-    async function generateKeys() {
-      const keyCount = parseInt(document.getElementById("keyCount").value) || 1;
-      const durationType = document.getElementById("durationType").value;
-      const durationValue = parseInt(document.getElementById("durationValue").value);
-      const expirationDate = new Date();
-
-      switch (durationType) {
-        case "hours": expirationDate.setHours(expirationDate.getHours() + durationValue); break;
-        case "days": expirationDate.setDate(expirationDate.getDate() + durationValue); break;
-        case "months": expirationDate.setMonth(expirationDate.getMonth() + durationValue); break;
-        case "years": expirationDate.setFullYear(expirationDate.getFullYear() + durationValue); break;
-      }
-
-      const generatedKeys = Array.from({ length: keyCount }, () => ({
-        key: generateRandomKey(),
-        expiresAt: expirationDate.toISOString(),
-        userId: null
-      }));
-
-      document.getElementById("recentlyGeneratedKeys").innerHTML = generatedKeys.map(k => `<li>${k.key}</li>`).join('');
-
-      const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": JSONBIN_API_KEY } });
-      const existingKeys = (await response.json()).record.keys || [];
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_API_KEY, "X-Bin-Versioning": "false" },
-        body: JSON.stringify({ keys: existingKeys.concat(generatedKeys) })
-      });
+    function nextPage() {
+      currentPage++;
       loadKeys();
     }
-
-    function copyGeneratedKeys() {
-      const keys = Array.from(document.getElementById("recentlyGeneratedKeys").children).map(li => li.textContent).join('\n');
-      navigator.clipboard.writeText(keys).then(() => alert("All generated keys copied to clipboard!"));
+    function previousPage() {
+      if (currentPage > 1) currentPage--;
+      loadKeys();
     }
-
-    async function loadKeys() {
-      const keysContainer = document.getElementById("userGeneratedKeys");
-      if (!keysContainer) {
-        console.error("Error: Keys container not found.");
-        return;
-      }
-      
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": JSONBIN_API_KEY } });
-        const keys = (await response.json()).record.keys || [];
-        const keysPerPage = parseInt(document.getElementById("keysPerPage").value) || 5;
-        const startIndex = (currentPage - 1) * keysPerPage;
-        const endIndex = Math.min(startIndex + keysPerPage, keys.length);
-
-        keysContainer.innerHTML = `
-          ${keys.slice(startIndex, endIndex).map(keyData => `
-            <div class="key-card">
-              <h3>${keyData.key}</h3>
-              <p>Expires: ${new Date(keyData.expiresAt).toLocaleString()}</p>
-              <p>Locked to User ID: ${keyData.userId || "Not Locked"}</p>
-            </div>
-          `).join('')}
-        `;
-      } catch (error) {
-        console.error("Failed to load keys:", error);
-      }
-    }
-
-    function nextPage() { currentPage++; loadKeys(); }
-    function previousPage() { if (currentPage > 1) currentPage--; loadKeys(); }
 
     if (localStorage.getItem("loggedIn") === "true") {
       document.getElementById("login-container").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      openTab('keys');
+      openTab("keys");
     }
+
+    async function deleteExpiredKeys() {
+  try {
+    // Fetch all keys from MockAPI
+    const response = await fetch("https://673ce3d54db5a341d8334ff8.mockapi.io/keys", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch keys: ${response.statusText}`);
+    }
+
+    const keys = await response.json();
+
+    // Get the current time in ISO 8601 format
+    const currentTime = new Date().toISOString();
+
+    // Filter expired keys
+    const expiredKeys = keys.filter((key) => key.expiresAt <= currentTime);
+
+    if (expiredKeys.length === 0) {
+      alert("No expired keys to delete.");
+      return;
+    }
+
+    // Delete each expired key using its ID
+    const deletePromises = expiredKeys.map(async (key) => {
+      const deleteResponse = await fetch(`https://673ce3d54db5a341d8334ff8.mockapi.io/keys/${key.id}`, {
+        method: "DELETE",
+      });
+
+      if (!deleteResponse.ok) {
+        console.error(`Failed to delete key ${key.id}: ${deleteResponse.statusText}`);
+      }
+    });
+
+    // Wait for all delete requests to complete
+    await Promise.all(deletePromises);
+
+    alert(`${expiredKeys.length} expired key(s) deleted successfully.`);
+    loadKeys(); // Reload the keys to reflect changes
+  } catch (error) {
+    console.error("Failed to delete expired keys:", error);
+    alert("An error occurred while deleting expired keys. Please try again.");
+  }
+}
 
     loadKeys();
   </script>
