@@ -17,7 +17,7 @@ html {
 }
 
 .wallpaper {
-    background-image: url("../images/bg.png");
+    background-image: url("../images/bg.jpg");
     background-size: cover;
     background-position: center;
     height: 100vh;
@@ -44,24 +44,7 @@ h1 {
     font: bold 2vw "Zpix";
 }
 
-.hover-person, .hover-person-2 {
-    overflow: hidden;
-}
 
-.hover-person:hover h1 {
-    margin-left: 80px;
-}
-
-.hover-person-2:hover h1 {
-    margin-left: 68px;
-}
-
-.hover-person:hover, .hover-person-2:hover {
-    background-image: url("../images/hearts.png");
-    background-size: contain;
-    background-position: center center;
-    background-repeat: no-repeat;
-}
 
 .animate__animated.animate__fadeInDown,
 .animate__animated.animate__fadeInRight,
@@ -84,6 +67,7 @@ h1 {
     margin-bottom: 10px !important;
     font: bold 4vw "Zpix";
     animation: glitch 2s linear infinite;
+    color: #bdbdbd; 
 }
 
 .small {
