@@ -1,0 +1,56 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #fff;
+}
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100vh;
+}
+
+.left {
+    width: 40%;
+}
+
+textarea {
+    width: 90%;
+    height: 150px;
+    font-size: 1.2em;
+}
+
+.right {
+    position: relative;
+    width: 50%;
+    text-align: center;
+}
+
+.bd-container {
+    position: relative;
+    display: inline-block;
+}
+
+.bd-container img {
+    width: 300px;
+    border: solid;
+}
+
+.bubble {
+    position: absolute;
+    top: 0px;
+    left: 80px;
+    width: 200px;
+    height: 66px;
+    min-height: 50px;
+    padding: 10px;
+    background: white;
+    border: 3px solid black;
+    border-radius: 15px;
+    font-family: Comic Sans MS, cursive;
+    font-size: 18px;
+    color: black;
+    image-rendering: pixelated;
+    filter: blur(1px);
+}
