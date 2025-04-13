@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luck Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      width: 100%;
+    }
+    .column {
+      flex: 1;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      background-color: #1e1e1e;
+      border: 1px solid #444;
+      color: #f0f0f0;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.7rem;
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .results {
+      margin-top: 2rem;
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="column">
+      <h1>% to Odds</h1>
+      <label for="percentInput">Enter Chance in % (e.g. 0.0218):</label>
+      <input type="number" id="percentInput" placeholder="e.g. 0.0218" step="0.0001">
+      <button onclick="convertPercent()">Convert</button>
+      <div class="results" id="conversionResult"></div>
+    </div>
+
+    <!-- Right side: Luck calculator -->
+    <div class="column">
+      <h1>Luck Calculator</h1>
+
+      <label for="baseChance">Base Chance (e.g. 1 in 200000):</label>
+      <input type="number" id="baseChance" placeholder="Enter number like 200000" />
+
+      <label for="percentBoost">Luck Boost (%) [optional]:</label>
+      <input type="number" id="percentBoost" placeholder="e.g. 960" />
+
+      <label for="multiplierBoost">Luck Multiplier (x) [optional]:</label>
+      <input type="number" step="0.1" id="multiplierBoost" placeholder="e.g. 10" />
+
+      <label for="shinyMultiplier">Shiny Multiplier (default 40):</label>
+      <input type="number" id="shinyMultiplier" value="40" />
+
+      <label for="mythicMultiplier">Mythic Multiplier (default 100):</label>
+      <input type="number" id="mythicMultiplier" value="100" />
+
+      <button onclick="calculateLuck()">Calculate</button>
+
+      <div class="results" id="results"></div>
+    </div>
+  </div>
+
+  <script>
+    function calculateLuck() {
+      const baseChance = parseFloat(document.getElementById('baseChance').value);
+      const percentBoost = parseFloat(document.getElementById('percentBoost').value) || 0;
+      const multiplierBoost = parseFloat(document.getElementById('multiplierBoost').value) || 1;
+      const shinyMultiplier = parseFloat(document.getElementById('shinyMultiplier').value) || 40;
+      const mythicMultiplier = parseFloat(document.getElementById('mythicMultiplier').value) || 100;
+
+      if (!baseChance || baseChance <= 0) {
+        alert("Please enter a valid base chance.");
+        return;
+      }
+
+      const boostFactor = (1 + percentBoost / 100) * multiplierBoost;
+
+      const finalChance = 1 / baseChance * boostFactor;
+      const finalPercent = finalChance * 100;
+      const final1in = 1 / finalChance;
+
+      const shinyBase = baseChance * shinyMultiplier;
+      const shinyFinalChance = 1 / shinyBase * boostFactor;
+      const shiny1in = 1 / shinyFinalChance;
+
+      const mythicBase = baseChance * mythicMultiplier;
+      const mythicFinalChance = 1 / mythicBase * boostFactor;
+      const mythic1in = 1 / mythicFinalChance;
+
+      document.getElementById('results').innerHTML = `
+        <strong>Results:</strong><br>
+        Final Chance: <strong>${finalPercent.toFixed(6)}%</strong> (~1 in ${Math.round(final1in).toLocaleString()})<br><br>
+        <u>Special Chances:</u><br>
+        Shiny Chance: <strong>~1 in ${Math.round(shiny1in).toLocaleString()}</strong><br>
+        Mythic Chance: <strong>~1 in ${Math.round(mythic1in).toLocaleString()}</strong>
+      `;
+    }
+
+    function convertPercent() {
+      const percent = parseFloat(document.getElementById('percentInput').value);
+      if (!percent || percent <= 0) {
+        alert("Please enter a valid percentage greater than 0.");
+        return;
+      }
+      const probability = percent / 100;
+      const oneIn = 1 / probability;
+      document.getElementById('conversionResult').innerHTML = `
+        <strong>${percent}%</strong> = ~<strong>1 in ${Math.round(oneIn).toLocaleString()}</strong>
+      `;
+    }
+  </script>
+</body>
+</html>

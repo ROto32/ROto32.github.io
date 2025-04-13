@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>「fujisreturn」</title>
+  <link rel="icon" type="image/gif" href="https://oto.bio/logo.gif">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/crt.css">
+  <link rel="stylesheet" href="css/animate.min.css">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9029222120243576"
+     crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<!-- Click to Proceed screen -->
+<div id="clickToEnterScreen" style="position: fixed; width: 100%; height: 100%; background-color: black; color: white; display: flex; justify-content: center; align-items: center; z-index: 1000;">
+  <h1 style="color: white;">Click to Proceed</h1> <!-- Texte en blanc -->
+</div>
+
+<audio id="gst-audio" src="audios/audio.mp3" style="display:none"></audio>
+
+  <div class="wallpaper" id="wallpaper" style="display:none;">
+      <div class="center-screen">
+          <div class="alignment-text">
+              <h1 class="big">@fujisreturn
+                </h1>
+              <div class="hover-person">
+                <h1 style="color: #bdbdbd; text-decoration: none;">my shii</a></h1>
+              </div>
+              <div class="hover-person-2 social-icons">
+                <a href="https://discord.com/users/1229371812325101631">
+                  <img src="images/discord.png" alt="Discord" class="icon discord">
+                </a>
+                <a href="https://open.spotify.com/user/31tc5wxqfoqbtoulrx7l6jm2dnwm">
+                  <img src="images/spotify.png" alt="Spotify" class="icon spotify">
+                </a>
+                <a href="https://www.roblox.com/users/3165913918/profile">
+                  <img src="images/roblox.png" alt="Roblox" class="icon Roblox">
+                </a>
+                <a href="https://www.tiktok.com/@fujisreturn2">
+                  <img src="images/tiktok.png" alt="Tiktok" class="icon tiktok">
+                </a>
+              </div>
+              
+              <div class="hover-person-2">
+                <h1 style="color: #bdbdbd; text-decoration: none; font-size: 10px;">@fujisreturn</a></h1>
+              </div>
+          </div>
+      </div>
+  </div>
+
+<script>
+  (function () {
+    const hoaAudio = document.getElementById('gst-audio');
+    const wallpaper = document.getElementById('wallpaper');
+    const clickToEnterScreen = document.getElementById('clickToEnterScreen');
+    
+    function showMainContent() {
+      clickToEnterScreen.style.display = 'none'; // Hide the click screen
+      wallpaper.style.display = 'block'; // Show the main content
+      hoaAudio.play().catch(catchHandler); // Play audio
+    }
+
+    function catchHandler() {
+      let inputListener;
+      inputListener = function () {
+        hoaAudio.play();
+        document.removeEventListener('mousedown', inputListener);
+        document.removeEventListener('keydown', inputListener);
+      };
+
+      document.addEventListener('mousedown', inputListener);
+      document.addEventListener('keydown', inputListener);
+    }
+
+    // Wait for user interaction to show the main content
+    clickToEnterScreen.addEventListener('click', showMainContent);
+
+    if (hoaAudio.readyState > 1) {
+      hoaAudio.play().catch(catchHandler);
+    } else {
+      hoaAudio.addEventListener('canplay', function () {
+        hoaAudio.play().catch(catchHandler);
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
