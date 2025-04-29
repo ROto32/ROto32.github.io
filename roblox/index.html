@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roblox Game Joiner</title>
+  <style>
+    /* === Background Animation === */
+    body {
+      background: black;
+      color: #00FF00;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 0 0 2px #00FF00, 0 0 10px #00FF00;
+    }
+
+    /* CRT Scanlines */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 0, 0.02),
+        rgba(0, 255, 0, 0.02) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      z-index: 2;
+    }
+
+    /* Matrix rain background */
+    .matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: black;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      z-index: 3;
+    }
+
+    .typing::after {
+      content: '_';
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .textbox {
+      background-color: #111;
+      border: 1px solid #00FF00;
+      color: #00FF00;
+      padding: 10px;
+      font-size: 1.1em;
+      margin: 10px;
+      width: 320px;
+      z-index: 3;
+    }
+
+    .button, .toggle {
+      background-color: #00FF00;
+      border: none;
+      color: black;
+      padding: 10px 20px;
+      font-size: 1em;
+      margin-top: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      z-index: 3;
+    }
+
+    .button:hover, .toggle:hover {
+      background-color: #00cc00;
+    }
+
+    .toggle.on {
+      background-color: #008800;
+      color: #00FF00;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.8em;
+      color: #008800;
+      z-index: 3;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 3;
+    }
+
+    .panel {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      border: 1px solid #00FF00;
+      padding: 30px 40px;
+      border-radius: 10px;
+      z-index: 3;
+      box-shadow: 0 0 20px #00ff0040;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+}
+
+  </style>
+</head>
+<body>
+  <div class="matrix">
+    <canvas id="matrixCanvas"></canvas>
+  </div>
+
+  <div class="panel">
+    <h1 class="typing">ROBLOX GAME JOINER</h1>
+  
+    <input type="text" id="placeId" class="textbox" placeholder="Place ID">
+    <input type="text" id="jobId" class="textbox" placeholder="Job ID">
+  
+    <div class="controls">
+      <button class="button" onclick="joinGame()">Join Game</button>
+      <button id="toggleAuto" class="toggle" onclick="toggleAutoJoin()">AutoJoin: OFF</button>
+    </div>
+  
+    <div class="footer">oto.wtf &mdash; made by oto</div>
+  </div>
+  
+  <script>
+    // URL Query Param Parsing
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      const place = params.get("placeID");
+      const job = params.get("JobID");
+      const auto = params.get("AutoJoin");
+
+      if (place) document.getElementById("placeId").value = place;
+      if (job) document.getElementById("jobId").value = job;
+
+      const savedAuto = localStorage.getItem("AutoJoin");
+      const autoJoin = (auto !== null) ? (auto.toLowerCase() === "true") : (savedAuto === "true");
+
+      setAutoJoin(autoJoin);
+      if (autoJoin && place) {
+        setTimeout(joinGame, 800);
+      }
+    };
+
+    function joinGame() {
+      const placeId = document.getElementById("placeId").value.trim();
+      const jobId = document.getElementById("jobId").value.trim();
+      if (!placeId) {
+        alert("Place ID is required.");
+        return;
+      }
+      let url = `roblox://experiences/start?placeId=${placeId}`;
+      if (jobId) url += `&gameInstanceId=${jobId}`;
+      window.location.href = url;
+    }
+
+    function toggleAutoJoin() {
+      const current = localStorage.getItem("AutoJoin") === "true";
+      const newValue = !current;
+      setAutoJoin(newValue);
+      localStorage.setItem("AutoJoin", newValue);
+    }
+
+    function setAutoJoin(enabled) {
+      const toggle = document.getElementById("toggleAuto");
+      toggle.classList.toggle("on", enabled);
+      toggle.textContent = `AutoJoin: ${enabled ? "ON" : "OFF"}`;
+    }
+
+    // Matrix animation background
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = '01';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#00FF00';
+      ctx.font = fontSize + 'px monospace';
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 33);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
