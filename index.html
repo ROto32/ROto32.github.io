@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>oto's bio</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      color: white;
+      background: black;
+    }
+
+    #intro {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    #intro h1 {
+      font-size: 4em;
+      margin: 0;
+      animation: rainbowText 2s infinite alternate;
+    }
+
+    #intro button {
+      margin-top: 30px;
+      font-size: 2em;
+      padding: 20px 40px;
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      cursor: pointer;
+    }
+
+    @keyframes rainbowText {
+      0% { color: red; }
+      25% { color: orange; }
+      50% { color: yellow; }
+      75% { color: green; }
+      100% { color: violet; }
+    }
+
+    body.started {
+      background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
+      background-size: 2000% 2000%;
+      animation: rainbowBG 10s linear infinite;
+    }
+
+    @keyframes rainbowBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h2 {
+      position: absolute;
+      top: 30px; width: 100%;
+      text-align: center;
+      text-shadow: 2px 2px 4px #000;
+      font-size: 2em;
+      z-index: 1000;
+    }
+
+    h3 {
+      position: absolute;
+      top: 100px; width: 100%;
+      text-align: center;
+      text-shadow: 2px 2px 4px #000;
+      font-size: 2em;
+      z-index: 1000;
+    }
+
+    .meme {
+      position: absolute;
+      width: 120px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .vid {
+      position: absolute;
+      width: 200px;
+      pointer-events: none;
+    }
+
+    .hitmarker {
+      position: absolute;
+      width: 80px;
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="intro">
+    <h1>oto bio</h1>
+    <button id="enter">CLICK TO ENTER</button>
+  </div>
+
+  <h2>yo i'm oto and i'm a developer.</h2>
+  <h3>my discord (for contact) is otoz7</h3>
+
+  <audio id="bg-music" src="2016/song.mp3" loop></audio>
+  <audio id="airhorn" src="2016/Reactions Plus Sounds/Air Horn Sound.mp3"></audio>
+  <audio id="hitmarker-sound" src="2016/Reactions Plus Sounds/Hitmarker Sound.wav"></audio>
+
+  <script>
+    const memeCount = 70; // Number of memes
+    const videoCount = 25; // Number of videos
+
+    const enterBtn = document.getElementById('enter');
+    const intro = document.getElementById('intro');
+    const bgMusic = document.getElementById('bg-music');
+    const airhorn = document.getElementById('airhorn');
+    const hitmarkerSound = document.getElementById('hitmarker-sound');
+
+    enterBtn.onclick = () => {
+      intro.style.display = 'none';
+      document.body.classList.add('started');
+      bgMusic.play();
+      launchMLG();
+    };
+
+    document.body.addEventListener('click', e => {
+      spawnHitmarker(e.clientX, e.clientY);
+      hitmarkerSound.play();
+      airhorn.play();
+    });
+
+    function launchMLG() {
+      const images = [
+        "2016/Pictures/#GETREKT [TRANSPARENT].png",
+        "2016/Pictures/#MLGPRO [TRANSPARENT].png",
+        "2016/Pictures/1v1 me kunt [TRANSPARENT].png",
+        "2016/Pictures/Doritos Logo [TRANSPARENT].png",
+        "2016/Pictures/Faze Logo [TRANSPARENT].png",
+        "2016/Pictures/Fedora [TRANSPARENT].png",
+        "2016/Pictures/fite me fgt [TRANSPARENT].png",
+        "2016/Pictures/Hitmaker Transparent.png",
+        "2016/Pictures/Illuminati [TRANSPARETN].png",
+        "2016/Pictures/Joint [TRANSPARENT].png",
+        "2016/Pictures/MLG Logo [TRANSPARENT].png",
+        "2016/Pictures/MTN DEW Logo [TRANSPARENT].png",
+        "2016/Pictures/Pixel Sunglasses [TRANSPARENT].png",
+        "2016/Pictures/quikscopez for days.png",
+        "2016/Pictures/Sample Text Comic Sans MS [TRANSPARENT].png",
+        "2016/Pictures/Shrek Logo [TRANSPARENT].png",
+        "2016/Pictures/Weed Leaf [TRANSPARETN].png"
+      ];
+
+      const videos = [
+        "2016/Rainbow frog gif.mp4",
+        "2016/Green Screens/Fuck her right in the pussy Green Screen.mp4",
+        "2016/Green Screens/Green Screen Hitmarker Spam (1).mp4",
+        "2016/Green Screens/Guns Shooting Green Screen (1).mp4",
+        "2016/Green Screens/MLG PACK free download.mp4",
+        "2016/Green Screens/Round Winning Killcam.mp4",
+        "2016/Green Screens/Spinning Illuminati (1).mp4",
+        "2016/Reactions Plus Sounds/Best Trickshot reaction ever MW2 (1).mp4"
+      ];
+
+      getRandom(images, memeCount).forEach(src => createMeme(src));
+      getRandom(videos, videoCount).forEach(src => createVideo(src));
+      animateMemes();
+    }
+
+    function getRandom(arr, n) {
+      const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, n);
+    }
+
+    function randomInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    function createMeme(src) {
+      const img = document.createElement('img');
+      img.src = src;
+      img.classList.add('meme');
+      img.style.top = randomInt(window.innerHeight - 120) + 'px';
+      img.style.left = randomInt(window.innerWidth - 120) + 'px';
+      img.dataset.vx = (Math.random() * 8 - 4).toString();
+      img.dataset.vy = (Math.random() * 8 - 4).toString();
+      img.dataset.rotate = randomInt(360).toString();
+      img.dataset.width = 120;
+      img.dataset.height = 120;
+      document.body.appendChild(img);
+    }
+
+    function createVideo(src) {
+      const vid = document.createElement('video');
+      vid.src = src;
+      vid.classList.add('vid');
+      vid.style.top = randomInt(window.innerHeight - 200) + 'px';
+      vid.style.left = randomInt(window.innerWidth - 200) + 'px';
+      vid.autoplay = true;
+      vid.loop = true;
+      vid.muted = true;
+      vid.dataset.vx = (Math.random() * 6 - 3).toString();
+      vid.dataset.vy = (Math.random() * 6 - 3).toString();
+      vid.dataset.rotate = randomInt(360).toString();
+      vid.dataset.width = 200;
+      vid.dataset.height = 200;
+      document.body.appendChild(vid);
+    }
+
+    function animateMemes() {
+      const all = document.querySelectorAll('.meme, .vid');
+      all.forEach(el => {
+        let x = parseFloat(el.style.left);
+        let y = parseFloat(el.style.top);
+        let vx = parseFloat(el.dataset.vx);
+        let vy = parseFloat(el.dataset.vy);
+        let rot = parseFloat(el.dataset.rotate);
+        const w = parseFloat(el.dataset.width);
+        const h = parseFloat(el.dataset.height);
+
+        x += vx;
+        y += vy;
+
+        // Bounce off edges
+        if (x <= 0 || x + w >= window.innerWidth) {
+          vx = -vx;
+        }
+        if (y <= 0 || y + h >= window.innerHeight) {
+          vy = -vy;
+        }
+
+        rot += 2;
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.transform = `rotate(${rot}deg)`;
+
+        el.dataset.vx = vx.toString();
+        el.dataset.vy = vy.toString();
+        el.dataset.rotate = rot.toString();
+      });
+
+      requestAnimationFrame(animateMemes);
+    }
+
+    function spawnHitmarker(x, y) {
+      const img = document.createElement('img');
+      img.src = "2016/Pictures/Hitmaker Transparent.png";
+      img.classList.add('hitmarker');
+      img.style.left = (x - 40) + 'px';
+      img.style.top = (y - 40) + 'px';
+      document.body.appendChild(img);
+      setTimeout(() => img.remove(), 500);
+    }
+  </script>
+</body>
+</html>
