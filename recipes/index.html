@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Food Recipe Selector</title>
+  <style>
+    body {
+      background: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      color: #6fcf97;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .icon-button {
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 8px;
+      background-color: #1e1e2f;
+      transition: 0.3s;
+      cursor: pointer;
+      text-align: center;
+      width: 90px;
+    }
+
+    .icon-button:hover, .icon-button.active {
+      border-color: #6fcf97;
+      background-color: #292947;
+    }
+
+    .icon-button img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 5px;
+    }
+
+    #result {
+      background-color: #1e1e2f;
+      padding: 20px;
+      border-left: 5px solid #ffb86c;
+      border-radius: 10px;
+      max-width: 500px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    #result img {
+      border-radius: 4px;
+    }
+
+    .ingredient-item {
+      display: inline-flex;
+      align-items: center;
+      background: #292947;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 4px;
+    }
+
+    .ingredient-item img {
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .ingredient-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽️ Food Recipe Selector</h1>
+
+  <div class="section-title">1. Select a Food</div>
+  <div class="grid" id="foodGrid"></div>
+
+  <div class="section-title">2. Select Rarity</div>
+  <div class="grid" id="rarityGrid"></div>
+
+  <div id="result"></div>
+
+  <script>
+    const data = {
+      Salad: {
+        Normal: `x2 Tomato or x1 Strawberry + x1 Bell Pepper or x2 Blood Banana + x2 Tomato`,
+        Mythical: `x1 Tomato + x1 Giant Pinecone`,
+        Divine: `x3 Sugar Apple + x1 Pepper + x1 Pineapple`
+      },
+      Sandwich: {
+        Normal: `x2 Tomato + x1 Corn`
+      },
+      Pie: {
+        Normal: `x1 Sugar Apple + x1 Pumpkin + x1 Giant Pinecone + x1 Apple + x1 Corn + x1 Pumpkin`,
+        Legendary: `1) x1 Pumpkin + x1 Moon Melon\n2) x1 Pumpkin + x1 Giant Pinecone + x1 Corn + x1 Apple`,
+        Mythical: `x1 Apple + x1 Pumpkin`,
+        Divine: `x1 Elder Strawberry + x1 Mango + x1 Giant Pinecone + x1 Coconut + x1 Beanstalk`
+      },
+      Waffle: {
+        Normal: `1) x1 Pumpkin + x1 Watermelon\n2) x1 Sugar Apple + x1 Watermelon\n3) x1 Strawberry + x1 Coconut`,
+        Divine: `x1 Sugar Apple + x1 Coconut`
+      },
+      "Hot Dog": {
+        Normal: `1) x1 Pepper + x1 Corn/Banana\n2) x2 Corn + x1 Watermelon\n3) x1 Pink Lily + x1 Elephant Ears + x1 Bone Blossom + x1 Violet Corn\n4) x2 Bone Blossom + x1 Pepper + x1 Corn\n5) x1/2 Bone Blossom + x1 Violet Corn`,
+        Prismatic: `x1 Corn + x3 Bone Blossom`
+      },
+      "Ice Cream": {
+        Uncommon: `x1 Corn + x1 Blueberry`,
+        Legendary: `x2 Bananas`,
+        Mythical: `1) x1 Sugar Apple + x1 Banana\n2) x1 Sugar Apple + x1 Corn`,
+        Divine: `x1 Sugar Apple + x1 Sugarglaze`,
+        Prismatic: `x1 Banana + x1 Sugar Apple + x3 Bone Blossom`
+      },
+      Donut: {
+        Normal: `1) x1 Strawberry + x1 Tomato + x1 Apple\n2) x2 Corn + x1 Watermelon\n3) x2 Corn + x1 Banana + x1 Pumpkin`,
+        Rare: `x1 Corn + x1 Blueberry + x1 Apple`,
+        Mythical: `x2 Sugar Apple + x1 Corn`,
+        Divine: `x1 Bone Blossom + x1 Sugar Apple + x1 Banana`
+      },
+      Pizza: {
+        Mythical: `x1 Pepper + x1 Tomato + x1 Corn + x2 Sugar Apple`,
+        Legendary: `1) x1 Tomato + x1 Banana + x2 Corn\n2) x2 Corn + x2 Apple + x1 Pepper`,
+        Divine: `1) x3 Sugar Apple + x1 Pepper + x1 Banana\n2) x2 Bone Blossom + x1 Spiked Mango + x1 Giant Pinecone + x1 Corn`
+      },
+      Sushi: {
+        Normal: `x4 Bamboo + x1 Corn`,
+        Legendary: `1) x3 Bamboo + x1 Corn + x1 Maple Apple\n2) x2 Cactus/Grape + x2 Bamboo + x1 Corn\n3) x3 Bamboo + x1 Corn + x1 Sugar Apple`,
+        Divine: `x1 Bamboo + x1 Corn + x3 Bone Blossom/Sugar Apple`
+      },
+      Cake: {
+        Uncommon: `1) x2 Corn + x2 Strawberry\n2) x2 Blueberry + x1 Corn + x1 Tomato\n3) x1 Ember Lily + x2 Peach\n4) x2 Banana + x2 Strawberry + x1 Pumpkin`,
+        Rare: `1) x2 Corn + x2 Watermelon\n2) x1 Blueberry + x1 Grape + x1 Apple + x1 Corn\n3) 2x Corn + 2x Banana + 1x Watermelon`,
+        Legendary: `x2 Kiwi + x2 Banana/Corn`,
+        Mythical: `1) x2 Sugar Apple + x2 Corn\n2) x4 Sweet + x1 Corn\n3) x1 Sakura Bush + x1 Cacao + x1 Corn + x1 Giant Pinecone + x1 Spiked Mango\n4) x1 Banana/Corn + x1 Kiwi + x3 Bone Blossom`,
+        Divine: `1) x1 Banana + x4 Sugar Apple\n2) x1 Corn + x2 Elder Strawberry + x2 Sugar Apple`,
+        Prismatic: `x1 Banana + x4 Bone Blossom`
+      },
+      Burger: {
+        Legendary: `x1 Pepper + x1 Corn + x1 Tomato`,
+        Mythical: `1) x1 Pepper + x1 Corn + x1 Tomato + x1 Bone Blossom + x1 Beanstalk\n2) x1 Pepper + x1 Corn + x1 Tomato + x2 Beanstalk`
+      }
+    };
+
+    const foodGrid = document.getElementById("foodGrid");
+    const rarityGrid = document.getElementById("rarityGrid");
+    const result = document.getElementById("result");
+
+    const rarityIcons = {
+      Normal: "rarity/normal.webp",
+      Uncommon: "rarity/UncommonIcon.webp",
+      Rare: "rarity/RareIcon.webp",
+      Legendary: "rarity/LegendaryIcon.webp",
+      Mythical: "rarity/Mythical_Icon.webp",
+      Divine: "rarity/Divine.webp",
+      Prismatic: "rarity/PrismaticTier.webp"
+    };
+
+    const fruitIcons = {
+      "Apple": "fruits/Applefruiticon.webp",
+      "Banana": "fruits/Blood_Banana_Icon.webp",
+      "Bell Pepper": "fruits/BellPepper1.webp",
+      "Blood Banana": "fruits/Blood_Banana_Icon.webp",
+      "Blueberry": "fruits/Blueberry.webp",
+      "Bone Blossom": "fruits/BoneBlossomCrop.webp",
+      "Cacao": "fruits/CacaoIcon.webp",
+      "Cactus": "fruits/CactusProduceIcon.webp",
+      "Coconut": "fruits/Coconutfruiticon.webp",
+      "Corn": "fruits/CornCropsPic.webp",
+      "Elder Strawberry": "fruits/ElderStrawberryCrop.webp",
+      "Elephant Ears": "fruits/Elephant_Ears_Produce.webp",
+      "Ember Lily": "fruits/Ember_Lily_Produce.webp",
+      "Giant Pinecone": "fruits/Giant_pinecone.webp",
+      "Grape": "fruits/Grape_Produce.webp",
+      "Kiwi": "fruits/Kiwi_%28Plant%29.webp",
+      "Mango": "fruits/Mango_produce.webp",
+      "Moon Melon": "fruits/MoonMelon.webp",
+      "Peach": "fruits/Transparent_Peach.webp",
+      "Pepper": "fruits/PepperCropsPic.webp",
+      "Pineapple": "fruits/PineappleFruitIcon.webp",
+      "Pink Lily": "fruits/Pink_Lily.webp",
+      "Pumpkin": "fruits/Pumpkin_produce.webp",
+      "Sakura Bush": "fruits/SakuraBushProduce.webp",
+      "Spiked Mango": "fruits/SpikedMangoProduce.webp",
+      "Strawberry": "fruits/Strawberry.webp",
+      "Sugar Apple": "fruits/SugarAppleIcon.webp",
+      "Sugarglaze": "fruits/SugarglazeProduce.webp",
+      "Tomato": "fruits/Tomato.webp",
+      "Violet Corn": "fruits/VioletCornProduceIcon.webp",
+      "Watermelon": "fruits/Watermelonfruiticon.webp",
+      "Beanstalk": "fruits/BeanstalkIcon.webp",
+      "Bamboo": "fruits/CactusProduceIcon.webp", // Using cactus as placeholder
+      "Maple Apple": "fruits/Applefruiticon.webp", // Using apple as placeholder
+      "Sweet": "fruits/SugarAppleIcon.webp", // Using sugar apple as placeholder
+      "Bananas": "fruits/Blood_Banana_Icon.webp" // Plural form
+    };
+
+    const foodList = Object.keys(data);
+    let selectedFood = null;
+
+    function formatFoodIcon(foodName) {
+      const base = foodName.replace(/ /g, '') + "Icon.webp";
+      return `food/${base}`;
+    }
+
+    function renderFoodOptions() {
+      foodGrid.innerHTML = '';
+      foodList.forEach(food => {
+        const iconPath = formatFoodIcon(food);
+        const btn = document.createElement('div');
+        btn.className = 'icon-button';
+        btn.innerHTML = `<img src="${iconPath}" alt="${food}"><div>${food}</div>`;
+        btn.onclick = () => {
+          selectedFood = food;
+          document.querySelectorAll('#foodGrid .icon-button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderRarityOptions();
+          result.innerHTML = '';
+        };
+        foodGrid.appendChild(btn);
+      });
+    }
+
+    function renderRarityOptions() {
+      rarityGrid.innerHTML = '';
+      const rarities = Object.keys(data[selectedFood]);
+      rarities.forEach(rarity => {
+        const iconPath = rarityIcons[rarity] || rarityIcons["Normal"];
+        const btn = document.createElement('div');
+        btn.className = 'icon-button';
+        btn.innerHTML = `<img src="${iconPath}" alt="${rarity}"><div>${rarity}</div>`;
+        btn.onclick = () => {
+          document.querySelectorAll('#rarityGrid .icon-button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          showIngredients(selectedFood, rarity);
+        };
+        rarityGrid.appendChild(btn);
+      });
+    }
+
+    function showIngredients(food, rarity) {
+      const ingredients = data[food]?.[rarity];
+      let html = `<strong>${food} (${rarity})</strong>\n\n`;
+      
+      // Split by lines and handle each line
+      const lines = ingredients.split('\n');
+      for (const line of lines) {
+        if (line.trim() === '') continue;
+        
+        // Handle numbered recipes (1), 2), etc.)
+        let isNumberedRecipe = false;
+        if (line.match(/^\d+\)/)) {
+          isNumberedRecipe = true;
+          html += `<div style="margin: 15px 0 10px 0;"><strong style="color: #ffb86c;">${line}</strong> `;
+        }
+        
+        let lineHtml = '';
+        
+        // Parse ingredients with quantities - handle multiple formats
+        const ingredientPatterns = [
+          /x(\d+)\/(\d+)\s+([^+\n]+)/g,  // x1/2 Bone Blossom
+          /x(\d+)\s+([^+\n]+)/g,  // x2 Tomato
+          /(\d+)x\s+([^+\n]+)/g,  // 2x Corn
+        ];
+        
+        // Find all ingredients in the line
+        let allIngredients = [];
+        for (const pattern of ingredientPatterns) {
+          const matches = line.match(pattern);
+          if (matches) {
+            for (const match of matches) {
+              let quantity, item;
+              
+              if (pattern.source.includes('\\/')) {
+                // Handle fractions like x1/2
+                const fractionMatch = match.match(/x(\d+)\/(\d+)\s+(.+)/);
+                if (fractionMatch) {
+                  quantity = `${fractionMatch[1]}/${fractionMatch[2]}`;
+                  item = fractionMatch[3].trim();
+                }
+              } else if (pattern.source.includes('\\d+x')) {
+                // Handle 2x format
+                const quantityMatch = match.match(/(\d+)x\s+(.+)/);
+                if (quantityMatch) {
+                  quantity = quantityMatch[1];
+                  item = quantityMatch[2].trim();
+                }
+              } else {
+                // Handle x2 format
+                const quantityMatch = match.match(/x(\d+)\s+(.+)/);
+                if (quantityMatch) {
+                  quantity = quantityMatch[1];
+                  item = quantityMatch[2].trim();
+                }
+              }
+              
+              if (quantity && item) {
+                allIngredients.push({ match, quantity, item });
+              }
+            }
+          }
+        }
+        
+        // Process ingredients in order of appearance
+        allIngredients.sort((a, b) => line.indexOf(a.match) - line.indexOf(b.match));
+        
+        for (let i = 0; i < allIngredients.length; i++) {
+          const { quantity, item } = allIngredients[i];
+          
+          // Handle "or" alternatives
+          if (item.includes(' or ')) {
+            const alternatives = item.split(' or ');
+            for (let j = 0; j < alternatives.length; j++) {
+              const alt = alternatives[j].trim();
+              const iconPath = fruitIcons[alt] || '';
+              if (iconPath) {
+                lineHtml += `<div class="ingredient-item">
+                  <img src="${iconPath}" alt="${alt}">
+                  <span class="ingredient-text">x${quantity} ${alt}</span>
+                </div>`;
+              } else {
+                lineHtml += `<span class="ingredient-text">x${quantity} ${alt}</span>`;
+              }
+              if (j < alternatives.length - 1) {
+                lineHtml += ' <span style="color: #6fcf97; margin: 0 8px;">or</span> ';
+              }
+            }
+          } else {
+            const iconPath = fruitIcons[item] || '';
+            if (iconPath) {
+              lineHtml += `<div class="ingredient-item">
+                <img src="${iconPath}" alt="${item}">
+                <span class="ingredient-text">x${quantity} ${item}</span>
+              </div>`;
+            } else {
+              lineHtml += `<span class="ingredient-text">x${quantity} ${item}</span>`;
+            }
+          }
+          
+          // Add space between ingredients (but no "+" symbol)
+          if (i < allIngredients.length - 1) {
+            lineHtml += ' ';
+          }
+        }
+        
+        if (lineHtml) {
+          if (isNumberedRecipe) {
+            html += `${lineHtml}</div>`;
+          } else {
+            html += `<div style="margin: 8px 0;">${lineHtml}</div>`;
+          }
+        }
+      }
+      
+      result.innerHTML = html;
+    }
+
+    renderFoodOptions();
+  </script>
+</body>
+</html>
+
